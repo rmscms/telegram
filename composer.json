@@ -1,0 +1,34 @@
+{
+    "name": "rmscms/telegram",
+    "description": "A Telegram package for Laravel applications",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "sharif",
+            "email": "msharif.ahrari@gmail.com"
+        }
+    ],
+    "require": {
+        "irazasyed/telegram-bot-sdk": "^3.15"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "RMS\\Telegram\\": "src/"
+        },
+        "files": [
+            "src/Helpers.php"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "RMS\\Telegram\\TelegramServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable"
+}
