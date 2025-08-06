@@ -22,11 +22,11 @@ class TestTelegram extends Command
         $results = [];
         $messageId = null;
         $photoMessageId = null;
-
+        $chat_id =config('telegram.bots.' . config('telegram.default') . '.channel_id');
         // تست ۱: ارسال پیام متنی
         try {
             $response = app('rms.telegram')
-                ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                ->to($chat_id)
                 ->message('Hello, this is a <b>bold</b> test message!')
                 ->withHtml()
                 ->withoutNotification()
@@ -50,7 +50,7 @@ class TestTelegram extends Command
                 ]);
 
             $response = app('rms.telegram')
-                ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                ->to($chat_id)
                 ->photo('images/test.jpg')
                 ->message('This is a <b>photo</b> caption!')
                 ->withHtml()
@@ -75,7 +75,7 @@ class TestTelegram extends Command
                 ]);
 
             $response = app('rms.telegram')
-                ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                ->to($chat_id)
                 ->document('documents/test.pdf')
                 ->message('This is a <b>document</b> caption!')
                 ->withHtml()
@@ -103,7 +103,7 @@ class TestTelegram extends Command
                 ]);
 
             $response = app('rms.telegram')
-                ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                ->to($chat_id)
                 ->mediaGroup($mediaGroup)
                 ->withHtml()
                 ->withKeyboard($keyboard)
@@ -134,7 +134,7 @@ class TestTelegram extends Command
                     ]);
 
                 $response = app('rms.telegram')
-                    ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                    ->to($chat_id)
                     ->withMessageId($messageId)
                     ->message('This is an <b>updated</b> text message!')
                     ->withHtml()
@@ -161,7 +161,7 @@ class TestTelegram extends Command
                     ]);
 
                 $response = app('rms.telegram')
-                    ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                    ->to($chat_id)
                     ->withMessageId($photoMessageId)
                     ->photo('images/test.jpg')
                     ->message('This is an <b>updated</b> caption!')
@@ -184,7 +184,7 @@ class TestTelegram extends Command
         try {
             if ($messageId) {
                 $response = app('rms.telegram')
-                    ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                    ->to($chat_id)
                     ->withMessageId($messageId)
                     ->withoutNotification()
                     ->pin();
@@ -204,7 +204,7 @@ class TestTelegram extends Command
         try {
             if ($messageId) {
                 $response = app('rms.telegram')
-                    ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                    ->to($chat_id)
                     ->withMessageId($messageId)
                     ->delete();
                 if (!$response) {
@@ -222,7 +222,7 @@ class TestTelegram extends Command
         // تست ۹: ارسال با Markdown
         try {
             $response = app('rms.telegram')
-                ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                ->to($chat_id)
                 ->message('This is a *bold* message\!')
                 ->withMarkdown()
                 ->send();
@@ -244,7 +244,7 @@ class TestTelegram extends Command
                 ]);
 
             $response = app('rms.telegram')
-                ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                ->to($chat_id)
                 ->message('Choose an option:')
                 ->withHtml()
                 ->withKeyboard($keyboard)
@@ -267,7 +267,7 @@ class TestTelegram extends Command
                 ]);
 
             $response = app('rms.telegram')
-                ->to(config('telegram.bots.' . config('telegram.default') . '.channel_id'))
+                ->to($chat_id)
                 ->message('Select an option:')
                 ->withHtml()
                 ->withKeyboard($keyboard)
