@@ -16,9 +16,13 @@ class MediaGroup
 
     public function addPhoto(string $path, ?string $caption = null): self
     {
+        $fullPath = Storage::disk('public')->path($path);
+        if (!file_exists($fullPath)) {
+            throw new \Exception("Photo file does not exist: {$fullPath}");
+        }
         $this->media[] = [
             'type' => 'photo',
-            'media' => InputFile::create(Storage::disk('public')->path($path), basename($path)),
+            'media' => InputFile::create($fullPath, basename($path)),
             'caption' => $caption,
         ];
         return $this;
@@ -26,9 +30,13 @@ class MediaGroup
 
     public function addVideo(string $path, ?string $caption = null): self
     {
+        $fullPath = Storage::disk('public')->path($path);
+        if (!file_exists($fullPath)) {
+            throw new \Exception("Video file does not exist: {$fullPath}");
+        }
         $this->media[] = [
             'type' => 'video',
-            'media' => InputFile::create(Storage::disk('public')->path($path), basename($path)),
+            'media' => InputFile::create($fullPath, basename($path)),
             'caption' => $caption,
         ];
         return $this;

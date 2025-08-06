@@ -45,13 +45,21 @@ class Telegram
 
     public function photo(string $path): self
     {
-        $this->photo = InputFile::create(Storage::disk('public')->path($path), basename($path));
+        $fullPath = Storage::disk('public')->path($path);
+        if (!file_exists($fullPath)) {
+            throw new \Exception("Photo file does not exist: {$fullPath}");
+        }
+        $this->photo = InputFile::create($fullPath, basename($path));
         return $this;
     }
 
     public function document(string $path): self
     {
-        $this->document = InputFile::create(Storage::disk('public')->path($path), basename($path));
+        $fullPath = Storage::disk('public')->path($path);
+        if (!file_exists($fullPath)) {
+            throw new \Exception("Document file does not exist: {$fullPath}");
+        }
+        $this->document = InputFile::create($fullPath, basename($path));
         return $this;
     }
 
