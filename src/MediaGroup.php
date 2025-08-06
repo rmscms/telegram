@@ -3,6 +3,7 @@
 namespace RMS\Telegram;
 
 use Illuminate\Support\Facades\Storage;
+use Telegram\Bot\FileUpload\InputFile;
 
 class MediaGroup
 {
@@ -17,7 +18,7 @@ class MediaGroup
     {
         $this->media[] = [
             'type' => 'photo',
-            'media' => Storage::path($path),
+            'media' => InputFile::create(Storage::disk('public')->path($path), basename($path)),
             'caption' => $caption,
         ];
         return $this;
@@ -27,7 +28,7 @@ class MediaGroup
     {
         $this->media[] = [
             'type' => 'video',
-            'media' => Storage::path($path),
+            'media' => InputFile::create(Storage::disk('public')->path($path), basename($path)),
             'caption' => $caption,
         ];
         return $this;

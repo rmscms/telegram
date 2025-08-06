@@ -3,8 +3,6 @@
 use Telegram\Bot\Commands\HelpCommand;
 
 return [
-    'channels'=>[
-    ],
     /*
     |--------------------------------------------------------------------------
     | Your Telegram Bots
@@ -18,37 +16,29 @@ return [
     |
     | - name: The *personal* name you would like to refer to your bot as.
     |
-    |       - token:    Your Telegram Bot's Access Token.
-                        Refer for more details: https://core.telegram.org/bots#botfather
-    |                   Example: (string) '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11'.
+    | - token: Your Telegram Bot's Access Token.
+    |          Refer for more details: https://core.telegram.org/bots#botfather
+    |          Example: (string) '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11'.
     |
-    |       - commands: (Optional) Commands to register for this bot,
-    |                   Supported Values: "Command Group Name", "Shared Command Name", "Full Path to Class".
-    |                   Default: Registers Global Commands.
-    |                   Example: (array) [
-    |                       'admin', // Command Group Name.
-    |                       'status', // Shared Command Name.
-    |                       Acme\Project\Commands\BotFather\HelloCommand::class,
-    |                       Acme\Project\Commands\BotFather\ByeCommand::class,
+    | - commands: (Optional) Commands to register for this bot,
+    |             Supported Values: "Command Group Name", "Shared Command Name", "Full Path to Class".
+    |             Default: Registers Global Commands.
+    |             Example: (array) [
+    |             'admin', // Command Group Name.
+    |             'status', // Shared Command Name.
+    |             Acme\Project\Commands\BotFather\HelloCommand::class,
+    |             Acme\Project\Commands\BotFather\ByeCommand::class,
     |             ]
     */
     'bots' => [
         'mybot' => [
             'token' => env('TELEGRAM_BOT_TOKEN', ''),
-            'certificate_path' => env('TELEGRAM_CERTIFICATE_PATH', 'YOUR-CERTIFICATE-PATH'),
-            'webhook_url' => env('TELEGRAM_WEBHOOK_URL', 'YOUR-BOT-WEBHOOK-URL'),
-            /*
-             * @see https://core.telegram.org/bots/api#update
-             */
+            'channel_id' => env('TELEGRAM_CHANNEL_ID', ''),
+            'certificate_path' => env('TELEGRAM_CERTIFICATE_PATH', ''),
+            'webhook_url' => env('TELEGRAM_WEBHOOK_URL', ''),
             'allowed_updates' => null,
-            'commands' => [
-                // Acme\Project\Commands\MyTelegramBot\BotCommand::class
-            ],
+            'commands' => [],
         ],
-
-        //        'mySecondBot' => [
-        //            'token' => '123456:abc',
-        //        ],
     ],
 
     /*
@@ -76,9 +66,9 @@ return [
     'async_requests' => env('TELEGRAM_ASYNC_REQUESTS', false),
 
     /*
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     | HTTP Client Handler [Optional]
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     |
     | If you'd like to use a custom HTTP Client Handler.
     | Should be an instance of \Telegram\Bot\HttpClients\HttpClientInterface
@@ -89,9 +79,9 @@ return [
     'http_client_handler' => null,
 
     /*
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     | Base Bot Url [Optional]
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     |
     | If you'd like to use a custom Base Bot Url.
     | Should be a local bot api endpoint or a proxy to the telegram api endpoint
@@ -99,12 +89,12 @@ return [
     | Default: https://api.telegram.org/bot
     |
     */
-    'base_bot_url' => null,
+    'base_bot_url' => env('TELEGRAM_BASE_BOT_URL', 'https://api.telegram.org/bot'),
 
     /*
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     | Resolve Injected Dependencies in commands [Optional]
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     |
     | Using Laravel's IoC container, we can easily type hint dependencies in
     | our command's constructor and have them automatically resolved for us.
@@ -116,9 +106,9 @@ return [
     'resolve_command_dependencies' => true,
 
     /*
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     | Register Telegram Global Commands [Optional]
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     |
     | If you'd like to use the SDK's built in command handler system,
     | You can register all the global commands here.
@@ -136,9 +126,9 @@ return [
     ],
 
     /*
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     | Command Groups [Optional]
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     |
     | You can organize a set of commands into groups which can later,
     | be re-used across all your bots.
@@ -151,55 +141,13 @@ return [
     | groups of commands to bundle them into one group.
     | 4. You can create a group with a combination of 1, 2 and 3 all together in one group.
     |
-    | Examples shown below are by the group type for you to understand each of them.
     */
-    'command_groups' => [
-        /* // Group Type: 1
-           'commmon' => [
-                Acme\Project\Commands\TodoCommand::class,
-                Acme\Project\Commands\TaskCommand::class,
-           ],
-        */
-
-        /* // Group Type: 2
-           'subscription' => [
-                'start', // Shared Command Name.
-                'stop', // Shared Command Name.
-           ],
-        */
-
-        /* // Group Type: 3
-            'auth' => [
-                Acme\Project\Commands\LoginCommand::class,
-                Acme\Project\Commands\SomeCommand::class,
-            ],
-
-            'stats' => [
-                Acme\Project\Commands\UserStatsCommand::class,
-                Acme\Project\Commands\SubscriberStatsCommand::class,
-                Acme\Project\Commands\ReportsCommand::class,
-            ],
-
-            'admin' => [
-                'auth', // Command Group Name.
-                'stats' // Command Group Name.
-            ],
-        */
-
-        /* // Group Type: 4
-           'myBot' => [
-                'admin', // Command Group Name.
-                'subscription', // Command Group Name.
-                'status', // Shared Command Name.
-                'Acme\Project\Commands\BotCommand' // Full Path to Command Class.
-           ],
-        */
-    ],
+    'command_groups' => [],
 
     /*
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     | Shared Commands [Optional]
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     |
     | Shared commands let you register commands that can be shared between,
     | one or more bots across the project.
@@ -209,12 +157,7 @@ return [
     |
     | Shared commands are not active by default, You need to use the key name to register them,
     | individually in a group of commands or in bot commands.
-    | Think of this as a central storage, to register, reuse and maintain them across all bots.
     |
     */
-    'shared_commands' => [
-        // 'start' => Acme\Project\Commands\StartCommand::class,
-        // 'stop' => Acme\Project\Commands\StopCommand::class,
-        // 'status' => Acme\Project\Commands\StatusCommand::class,
-    ],
+    'shared_commands' => [],
 ];

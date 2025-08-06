@@ -4,6 +4,7 @@ namespace RMS\Telegram;
 
 use Illuminate\Support\Facades\Storage;
 use Telegram\Bot\Api;
+use Telegram\Bot\FileUpload\InputFile;
 
 class Telegram
 {
@@ -20,7 +21,8 @@ class Telegram
 
     public function __construct()
     {
-        $this->telegram = new Api(config('telegram.bot_token'));
+        $defaultBot = config('telegram.default', 'mybot');
+        $this->telegram = new Api(config("telegram.bots.{$defaultBot}.token"));
     }
 
     public function setApi($api): self
@@ -43,13 +45,13 @@ class Telegram
 
     public function photo(string $path): self
     {
-        $this->photo = Storage::path($path);
+        $this->photo = InputFile::create(Storage::disk('public')->path($path), basename($path));
         return $this;
     }
 
     public function document(string $path): self
     {
-        $this->document = Storage::path($path);
+        $this->document = InputFile::create(Storage::disk('public')->path($path), basename($path));
         return $this;
     }
 
@@ -95,10 +97,15 @@ class Telegram
         return $this;
     }
 
-    public function send(): void
+    public function send(): mixed
     {
-        if (!$this->chatId || (!$this->message && !$this->photo && !$this->document && !$this->mediaGroup)) {
-            return;
+        $defaultBot = config('telegram.default', 'mybot');
+        if (!$this->chatId) {
+            $this->chatId = config("telegram.bots.{$defaultBot}.channel_id");
+        }
+
+        if (!$this->chatId) {
+            return null;
         }
 
         $params = ['chat_id' => $this->chatId];
@@ -117,25 +124,40 @@ class Telegram
 
         if ($this->mediaGroup) {
             $params['media'] = json_encode($this->mediaGroup);
-            $this->telegram->sendMediaGroup($params);
+            $response = $this->telegram->sendMediaGroup($params);
+            $this->reset();
+            return $response;
         } elseif ($this->document) {
             $params['document'] = $this->document;
-            $params['caption'] = $this->message ?? null;
-            $this->telegram->sendDocument($params);
+            if ($this->message) {
+                $params['caption'] = $this->message;
+            }
+            $response = $this->telegram->sendDocument($params);
+            $this->reset();
+            return $response;
         } elseif ($this->photo) {
             $params['photo'] = $this->photo;
-            $params['caption'] = $this->message ?? null;
-            $this->telegram->sendPhoto($params);
+            if ($this->message) {
+                $params['caption'] = $this->message;
+            }
+            $response = $this->telegram->sendPhoto($params);
+            $this->reset();
+            return $response;
         } elseif ($this->message) {
             $params['text'] = $this->message;
-            $this->telegram->sendMessage($params);
+            $response = $this->telegram->sendMessage($params);
+            $this->reset();
+            return $response;
         }
+
+        $this->reset();
+        return null;
     }
 
-    public function update(): void
+    public function update(): mixed
     {
-        if (!$this->chatId || !$this->messageId || !$this->message) {
-            return;
+        if (!$this->chatId || !$this->messageId) {
+            return null;
         }
 
         $params = [
@@ -153,24 +175,30 @@ class Telegram
 
         if ($this->photo || $this->document) {
             $params['caption'] = $this->message ?? null;
-            $this->telegram->editMessageCaption($params);
+            $response = $this->telegram->editMessageCaption($params);
         } else {
-            $params['text'] = $this->message;
-            $this->telegram->editMessageText($params);
+            $params['text'] = $this->message ?? null;
+            $response = $this->telegram->editMessageText($params);
         }
+
+        $this->reset();
+        return $response;
     }
 
-    public function delete(): void
+    public function delete(): mixed
     {
         if ($this->chatId && $this->messageId) {
-            $this->telegram->deleteMessage([
+            $response = $this->telegram->deleteMessage([
                 'chat_id' => $this->chatId,
                 'message_id' => $this->messageId,
             ]);
+            $this->reset();
+            return $response;
         }
+        return null;
     }
 
-    public function pin(): void
+    public function pin(): mixed
     {
         if ($this->chatId && $this->messageId) {
             $params = [
@@ -182,7 +210,22 @@ class Telegram
                 $params['disable_notification'] = true;
             }
 
-            $this->telegram->pinChatMessage($params);
+            $response = $this->telegram->pinChatMessage($params);
+            $this->reset();
+            return $response;
         }
+        return null;
+    }
+
+    protected function reset(): void
+    {
+        $this->message = null;
+        $this->photo = null;
+        $this->document = null;
+        $this->mediaGroup = null;
+        $this->replyMarkup = null;
+        $this->parseMode = 'HTML';
+        $this->disableNotification = false;
+        $this->messageId = null;
     }
 }
