@@ -112,8 +112,15 @@ class TestTelegram extends Command
             if (empty($response)) {
                 throw new \Exception('Send media group response is empty');
             }
-            \Log::info('Send Media Group response: ' . json_encode(array_map(fn($msg) => $msg->toArray(), $response)));
-            $results[] = ['Test' => 'Send Media Group', 'Status' => 'Success', 'Message' => 'Media group sent'];
+            $mediaIds = [];
+            foreach ($response as $msg) {
+                if (is_object($msg)) {
+                    $mediaIds[] = $msg->getMessageId();
+                } else {
+                    $mediaIds[] = $msg['message_id'];
+                }
+            }
+            $results[] = ['Test' => 'Send Media Group', 'Status' => 'Success', 'Message' => 'Media group sent, IDs: ' . implode(', ', $mediaIds)];
         } catch (\Exception $e) {
             $results[] = ['Test' => 'Send Media Group', 'Status' => 'Failed', 'Message' => $e->getMessage()];
         }

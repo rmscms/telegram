@@ -15,7 +15,7 @@ class CreateTestFiles extends Command
         if ($this->option('clean')) {
             Storage::disk('public')->deleteDirectory('images');
             Storage::disk('public')->deleteDirectory('documents');
-          //  Storage::disk('public')->deleteDirectory('videos');
+            Storage::disk('public')->deleteDirectory('videos');
             $this->info('Test files cleaned.');
             return;
         }
@@ -43,10 +43,10 @@ class CreateTestFiles extends Command
         }
 
         // ساخت ویدیوی تستی (اگه وجود نداشته باشه)
-        /*if (!Storage::disk('public')->exists('videos/test.mp4')) {
+        if (!Storage::disk('public')->exists('videos/test.mp4')) {
             $videoContent = str_repeat("Fake MP4 content", 1000);
             Storage::disk('public')->put('videos/test.mp4', $videoContent);
-        }*/
+        }
 
         $this->info('Test files created or kept: documents/test.pdf, images/test.jpg, videos/test.mp4');
     }

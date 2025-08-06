@@ -2,6 +2,7 @@
 
 namespace RMS\Telegram;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Telegram\Bot\Api;
 use Telegram\Bot\FileUpload\InputFile;
@@ -131,7 +132,17 @@ class Telegram
         }
 
         if ($this->mediaGroup) {
-            $params['media'] = json_encode($this->mediaGroup);
+            $media = [];
+            foreach ($this->mediaGroup as $item) {
+                // آپلود فایل و گرفتن file_id
+                $fileId = $this->uploadFile($item['type'], $item['media']);
+                $media[] = [
+                    'type' => $item['type'],
+                    'media' => $fileId,
+                    'caption' => $item['caption'] ?? null,
+                ];
+            }
+            $params['media'] = json_encode($media);
             $response = $this->telegram->sendMediaGroup($params);
             $this->reset();
             return $response;
@@ -160,6 +171,28 @@ class Telegram
 
         $this->reset();
         return null;
+    }
+
+    protected function uploadFile(string $type, string $path): string
+    {
+        $params = ['chat_id' => $this->chatId];
+        $inputFile = InputFile::create($path, basename($path));
+
+        if ($type === 'photo') {
+            $params['photo'] = $inputFile;
+            $response = $this->telegram->sendPhoto($params);
+            return $response->getPhoto()[0]->getFileId();
+        } elseif ($type === 'video') {
+            $params['video'] = $inputFile;
+            $response = $this->telegram->sendVideo($params);
+            return $response->getVideo()->getFileId();
+        } elseif ($type === 'document') {
+            $params['document'] = $inputFile;
+            $response = $this->telegram->sendDocument($params);
+            return $response->getDocument()->getFileId();
+        }
+
+        throw new \Exception("Unsupported media type: {$type}");
     }
 
     public function update(): mixed
